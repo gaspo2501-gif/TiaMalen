@@ -16,14 +16,21 @@
             padding: 0;
             -webkit-tap-highlight-color: transparent;
         }
-        @media (max-width: 768px) {
-            main {
-                padding-bottom: 100px !important;
-            }
-        }
+        .btn-category:active { transform: scale(0.95); }
+        @media print { .no-print { display: none; } }
+        
         /* Custom scrollbar */
         ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* Ajuste para mobile nav */
+        @media (max-width: 768px) {
+            main {
+                padding-bottom: 80px !important;
+            }
+        }
     </style>
 <script type="importmap">
 {
