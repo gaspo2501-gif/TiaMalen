@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Despensa Tía Malen</title>
+
+  <!-- jsPDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header>
+    <h1>Despensa Tía Malen</h1>
+  </header>
+
+  <main id="app"></main>
+
+  <nav>
+    <button onclick="setView('inicio')">Inicio</button>
+    <button onclick="setView('ventas')">Ventas</button>
+    <button onclick="setView('clientes')">Clientes</button>
+    <button onclick="setView('gastos')">Gastos</button>
+    <button onclick="setView('reportes')">Reportes</button>
+  </nav>
+
+  <script src="app.js"></script>
+</body>
+</html>
