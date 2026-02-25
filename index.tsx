@@ -172,11 +172,23 @@ const App = () => {
     const efeNetoHoy = ingresosEfeHoy - gastosEfeHoy;
     const mpNetoHoy = ingresosMPHoy - gastosMPHoy;
     const cajaRealHoy = efeNetoHoy + mpNetoHoy;
+    const ingresosTotalesHoy = ingresosEfeHoy + ingresosMPHoy;
+    const gastosTotalesHoy = gastosEfeHoy + gastosMPHoy;
 
     const totalFiadoPendiente = customers.reduce((a, b) => a + b.balance, 0);
     const capitalTotal = cajaRealHoy + totalFiadoPendiente;
 
-    return { efeNetoHoy, mpNetoHoy, cajaRealHoy, totalFiadoPendiente, capitalTotal };
+    return { 
+      efeNetoHoy, 
+      mpNetoHoy, 
+      cajaRealHoy, 
+      ingresosTotalesHoy, 
+      ingresosEfeHoy,
+      ingresosMPHoy,
+      gastosTotalesHoy, 
+      totalFiadoPendiente, 
+      capitalTotal 
+    };
   }, [transactions, customers]);
 
   // --- LÓGICA DE REPORTES ---
@@ -321,17 +333,6 @@ const App = () => {
               <span className="text-sm font-semibold">{item.label}</span>
             </button>
           ))}
-          <button
-              onClick={() => { setView('LOGS'); setSelectedCustomerId(null); }}
-              className={`w-full flex items-center gap-4 p-4 rounded-2xl transition-all duration-300 ${
-                view === 'LOGS' 
-                  ? 'bg-[#F97316] text-white shadow-xl shadow-orange-500/30 font-bold' 
-                  : 'text-slate-400 hover:bg-slate-800 hover:text-white'
-              }`}
-            >
-              <span className="text-xl">📜</span>
-              <span className="text-sm font-semibold">Movimientos</span>
-          </button>
         </nav>
 
         <div className="mt-auto">
@@ -365,24 +366,36 @@ const App = () => {
         {view === 'DASHBOARD' && (
           <div className="max-w-7xl mx-auto space-y-8 md:space-y-10 animate-in fade-in duration-500">
             <h2 className="text-3xl md:text-4xl font-black text-slate-800 tracking-tight">Inicio</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-              <div className="bg-emerald-600 text-white p-6 md:p-8 rounded-[2.5rem] md:rounded-[3rem] shadow-xl relative overflow-hidden h-48 md:h-64 flex flex-col justify-between">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+              <div className="bg-emerald-600 text-white p-6 md:p-8 rounded-[2.5rem] md:rounded-[3rem] shadow-xl relative overflow-hidden h-48 md:h-64 flex flex-col justify-between lg:col-span-1">
                 <div>
-                  <p className="text-[10px] font-black uppercase opacity-80 tracking-widest mb-1">Caja Real Hoy (Neto)</p>
-                  <h4 className="text-4xl md:text-5xl font-black">${stats.cajaRealHoy.toLocaleString()}</h4>
+                  <p className="text-[10px] font-black uppercase opacity-80 tracking-widest mb-1">Ingresos Totales</p>
+                  <h4 className="text-4xl md:text-5xl font-black">${stats.ingresosTotalesHoy.toLocaleString()}</h4>
                 </div>
-                <p className="text-[10px] md:text-xs opacity-60 font-bold">Ingresos - Gastos del día</p>
-                <div className="absolute -bottom-8 -right-8 text-8xl md:text-9xl opacity-10">💵</div>
+                <p className="text-[10px] md:text-xs opacity-60 font-bold">Ventas + Cobros hoy</p>
+                <div className="absolute -bottom-8 -right-8 text-8xl md:text-9xl opacity-10">💰</div>
               </div>
               
               <div className="grid grid-cols-1 gap-4 md:gap-6">
                 <div className="bg-white p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] shadow-sm border border-slate-200">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Efectivo Neto Hoy</p>
-                  <h4 className="text-2xl md:text-3xl font-black text-emerald-600">${stats.efeNetoHoy.toLocaleString()}</h4>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Efectivo Hoy</p>
+                  <h4 className="text-2xl md:text-3xl font-black text-emerald-600">${stats.ingresosEfeHoy.toLocaleString()}</h4>
                 </div>
                 <div className="bg-white p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] shadow-sm border border-slate-200">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">MercadoPago Neto Hoy</p>
-                  <h4 className="text-2xl md:text-3xl font-black text-blue-600">${stats.mpNetoHoy.toLocaleString()}</h4>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">MercadoPago Hoy</p>
+                  <h4 className="text-2xl md:text-3xl font-black text-blue-600">${stats.ingresosMPHoy.toLocaleString()}</h4>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 md:gap-6">
+                <div className="bg-[#F97316] text-white p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] shadow-sm">
+                  <p className="text-[10px] font-black uppercase opacity-80 tracking-widest mb-1">Balance del Día</p>
+                  <h4 className="text-2xl md:text-3xl font-black">${stats.cajaRealHoy.toLocaleString()}</h4>
+                  <p className="text-[8px] opacity-60 font-bold uppercase mt-1">Neto (Ing - Gas)</p>
+                </div>
+                <div className="bg-white p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] shadow-sm border border-slate-200">
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Gastos del Día</p>
+                  <h4 className="text-2xl md:text-3xl font-black text-red-500">${stats.gastosTotalesHoy.toLocaleString()}</h4>
                 </div>
               </div>
 
@@ -391,9 +404,9 @@ const App = () => {
                   <p className="text-[10px] font-black opacity-60 tracking-widest mb-1">Fiado Pendiente</p>
                   <h4 className="text-2xl md:text-3xl font-black text-orange-400">${stats.totalFiadoPendiente.toLocaleString()}</h4>
                 </div>
-                <div className="bg-[#F97316] text-white p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] shadow-xl h-24 md:h-28 flex flex-col justify-center">
-                  <p className="text-[10px] font-black opacity-70 tracking-widest mb-1">Capital Total</p>
-                  <h4 className="text-2xl md:text-3xl font-black">${stats.capitalTotal.toLocaleString()}</h4>
+                <div className="bg-white p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] shadow-sm border border-slate-200 h-24 md:h-28 flex flex-col justify-center">
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Capital Total</p>
+                  <h4 className="text-2xl md:text-3xl font-black text-slate-800">${stats.capitalTotal.toLocaleString()}</h4>
                 </div>
               </div>
             </div>
@@ -516,6 +529,43 @@ const App = () => {
                 </button>
               </div>
             </div>
+
+            {/* Detalle de Gastos Mensuales */}
+            <div className="bg-white p-6 md:p-10 rounded-[2rem] md:rounded-[3rem] shadow-sm border border-slate-200">
+              <h3 className="text-lg md:text-xl font-black text-slate-800 mb-6 flex items-center gap-3">
+                <span className="text-2xl">📅</span> Gastos del Mes
+              </h3>
+              <div className="space-y-3">
+                {transactions
+                  .filter(t => {
+                    const d = new Date(t.timestamp);
+                    const now = new Date();
+                    return t.type === TX_TYPES.EXPENSE && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+                  })
+                  .length === 0 ? (
+                    <p className="text-slate-300 font-bold italic text-center py-6">No hay gastos registrados este mes.</p>
+                  ) : (
+                    transactions
+                      .filter(t => {
+                        const d = new Date(t.timestamp);
+                        const now = new Date();
+                        return t.type === TX_TYPES.EXPENSE && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+                      })
+                      .map(t => (
+                        <div key={t.id} className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100">
+                          <div>
+                            <p className="text-[10px] font-bold text-slate-400">{new Date(t.timestamp).toLocaleDateString()}</p>
+                            <p className="font-black text-slate-700 text-sm">{t.note}</p>
+                            <p className="text-[9px] text-slate-400 uppercase font-bold">{t.method}</p>
+                          </div>
+                          <div className="text-right font-black text-lg text-red-500">
+                            -${t.amount.toLocaleString()}
+                          </div>
+                        </div>
+                      ))
+                  )}
+              </div>
+            </div>
           </div>
         )}
 
@@ -561,35 +611,59 @@ const App = () => {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
                <div className="lg:col-span-2 space-y-6 md:space-y-8">
                   <div className="bg-white p-6 md:p-10 rounded-[2.5rem] md:rounded-[3.5rem] shadow-sm border border-slate-200 min-h-[400px]">
-                    <h3 className="text-xl font-black text-slate-800 mb-8 uppercase text-[10px] tracking-widest">Ventas por Categoría</h3>
-                    {reportData.pieData.length > 0 ? (
-                      <div className="h-[300px] md:h-[350px]">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <PieChart>
-                            <Pie
-                              data={reportData.pieData}
-                              cx="50%"
-                              cy="50%"
-                              innerRadius={60}
-                              outerRadius={100}
-                              paddingAngle={8}
-                              dataKey="value"
-                              label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                            >
-                              {reportData.pieData.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                              ))}
-                            </Pie>
-                            <Tooltip />
-                            <Legend verticalAlign="bottom" wrapperStyle={{ fontSize: '10px', paddingTop: '20px' }} />
-                          </PieChart>
-                        </ResponsiveContainer>
-                      </div>
-                    ) : (
-                      <div className="h-[300px] flex items-center justify-center text-slate-300 font-bold italic text-sm">
-                        No hay ventas en el rango seleccionado.
-                      </div>
-                    )}
+                    <h3 className="text-xl font-black text-slate-800 mb-8 uppercase text-[10px] tracking-widest">Balance Mensual Detallado</h3>
+                    <div className="space-y-6">
+                      {(() => {
+                        const now = new Date();
+                        const monthlyTxs = transactions.filter(t => {
+                          const d = new Date(t.timestamp);
+                          return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+                        });
+                        const monthlySales = monthlyTxs.filter(t => t.type === TX_TYPES.SALE || t.type === TX_TYPES.COLLECTION).reduce((a, b) => a + b.amount, 0);
+                        const monthlyExpenses = monthlyTxs.filter(t => t.type === TX_TYPES.EXPENSE).reduce((a, b) => a + b.amount, 0);
+                        const monthlyBalance = monthlySales - monthlyExpenses;
+
+                        return (
+                          <div className="space-y-8">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                              <div className="p-6 bg-emerald-50 rounded-3xl border border-emerald-100">
+                                <p className="text-[10px] font-black text-emerald-600 uppercase mb-1">Ingresos Mes</p>
+                                <p className="text-2xl font-black text-emerald-700">${monthlySales.toLocaleString()}</p>
+                              </div>
+                              <div className="p-6 bg-red-50 rounded-3xl border border-red-100">
+                                <p className="text-[10px] font-black text-red-600 uppercase mb-1">Gastos Mes</p>
+                                <p className="text-2xl font-black text-red-700">${monthlyExpenses.toLocaleString()}</p>
+                              </div>
+                              <div className={`p-6 rounded-3xl border ${monthlyBalance >= 0 ? 'bg-blue-50 border-blue-100' : 'bg-orange-50 border-orange-100'}`}>
+                                <p className={`text-[10px] font-black uppercase mb-1 ${monthlyBalance >= 0 ? 'text-blue-600' : 'text-orange-600'}`}>Balance Mes</p>
+                                <p className={`text-2xl font-black ${monthlyBalance >= 0 ? 'text-blue-700' : 'text-orange-700'}`}>${monthlyBalance.toLocaleString()}</p>
+                              </div>
+                            </div>
+
+                            <div className="bg-slate-50 p-6 rounded-[2rem] border border-slate-100">
+                              <h4 className="text-xs font-black text-slate-400 uppercase mb-4">Resumen de Actividad</h4>
+                              <div className="space-y-4">
+                                <div className="flex justify-between items-center">
+                                  <span className="text-sm font-bold text-slate-600">Transacciones Totales</span>
+                                  <span className="font-black text-slate-800">{monthlyTxs.length}</span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                  <span className="text-sm font-bold text-slate-600">Promedio Diario (Ventas)</span>
+                                  <span className="font-black text-slate-800">${(monthlySales / (now.getDate())).toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                                </div>
+                                <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden mt-4">
+                                  <div 
+                                    className="bg-emerald-500 h-full" 
+                                    style={{ width: `${Math.min(100, (monthlySales / (monthlySales + monthlyExpenses || 1)) * 100)}%` }}
+                                  ></div>
+                                </div>
+                                <p className="text-[9px] font-bold text-slate-400 text-center uppercase">Proporción Ingresos vs Gastos</p>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })()}
+                    </div>
                   </div>
                </div>
 
@@ -720,49 +794,6 @@ const App = () => {
           </div>
         )}
 
-        {/* MOVIMIENTOS (Log General) */}
-        {view === 'LOGS' && (
-          <div className="max-w-7xl mx-auto space-y-8 md:space-y-10 animate-in fade-in duration-300">
-            <h2 className="text-3xl md:text-4xl font-black text-slate-800 tracking-tight">Movimientos</h2>
-            <div className="bg-white rounded-[2rem] md:rounded-[3rem] border border-slate-200 shadow-sm overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left">
-                    <thead className="bg-slate-50 text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                      <tr>
-                        <th className="p-6 md:p-8">Fecha</th>
-                        <th className="p-6 md:p-8">Tipo</th>
-                        <th className="p-6 md:p-8">Concepto</th>
-                        <th className="p-6 md:p-8 text-right">Monto</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      {transactions.map(t => (
-                        <tr key={t.id}>
-                          <td className="p-6 md:p-8 text-[10px] md:text-xs font-bold text-slate-500">
-                            {new Date(t.timestamp).toLocaleDateString()}<br/>
-                            <span className="opacity-40">{new Date(t.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
-                          </td>
-                          <td className="p-6 md:p-8">
-                            <span className={`text-[9px] font-black px-3 py-1 rounded-full uppercase ${
-                              t.type === TX_TYPES.SALE ? 'bg-blue-50 text-blue-600' :
-                              t.type === TX_TYPES.EXPENSE ? 'bg-red-50 text-red-600' :
-                              'bg-emerald-50 text-emerald-600'
-                            }`}>{t.type}</span>
-                          </td>
-                          <td className="p-6 md:p-8 text-xs md:text-sm font-black text-slate-800">
-                            {t.type === TX_TYPES.SALE ? t.category : (t.customerId ? `Cli: ${customers.find(c => c.id === t.customerId)?.name || '?'}` : t.note)}
-                          </td>
-                          <td className={`p-6 md:p-8 text-right font-black text-lg md:text-xl ${t.type === TX_TYPES.EXPENSE ? 'text-red-500' : 'text-slate-800'}`}>
-                            {t.type === TX_TYPES.EXPENSE ? '-' : ''}${t.amount.toLocaleString()}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-            </div>
-          </div>
-        )}
       </main>
     </div>
   );
