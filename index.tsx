@@ -73,11 +73,72 @@ const App = () => {
 
   useEffect(() => {
     localStorage.setItem('tm_v3_transactions', JSON.stringify(transactions));
-  }, [transactions]);
+    // Auto-backup automático
+    const backupData = {
+      timestamp: new Date().toISOString(),
+      transactions: transactions,
+      customers: customers,
+      categories: categories
+    };
+    localStorage.setItem('tm_v3_autobackup', JSON.stringify(backupData));
+  }, [transactions, customers, categories]);
 
   useEffect(() => {
     localStorage.setItem('tm_v3_customers', JSON.stringify(customers));
   }, [customers]);
+
+  // --- Lógica de Respaldo ---
+  const handleExportBackup = () => {
+    const backup = {
+      categories: JSON.parse(localStorage.getItem('tm_v3_categories') || '[]'),
+      customers: JSON.parse(localStorage.getItem('tm_v3_customers') || '[]'),
+      transactions: JSON.parse(localStorage.getItem('tm_v3_transactions') || '[]'),
+      exportedAt: new Date().toISOString()
+    };
+    
+    const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    const date = new Date().toISOString().split('T')[0];
+    link.href = url;
+    link.download = `backup_tiamalen_${date}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImportBackup = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const content = e.target?.result as string;
+        const data = JSON.parse(content);
+
+        if (!data.categories || !data.customers || !data.transactions) {
+          alert('El archivo de respaldo no es válido.');
+          return;
+        }
+
+        if (confirm('¿Estás seguro de que deseas restaurar este respaldo? Se sobrescribirán los datos actuales.')) {
+          localStorage.setItem('tm_v3_categories', JSON.stringify(data.categories));
+          localStorage.setItem('tm_v3_customers', JSON.stringify(data.customers));
+          localStorage.setItem('tm_v3_transactions', JSON.stringify(data.transactions));
+          
+          alert('Respaldo restaurado con éxito. La aplicación se reiniciará.');
+          window.location.reload();
+        }
+      } catch (err) {
+        alert('Error al leer el archivo de respaldo.');
+      }
+    };
+    reader.readAsText(file);
+    // Reset input
+    event.target.value = '';
+  };
 
   // --- Lógica de Negocio: Transacciones ---
   const addTransaction = (type: string, data: any) => {
@@ -303,7 +364,8 @@ const App = () => {
     { id: 'CONFIG', label: 'Categorías', icon: '🏷️' },
     { id: 'CUSTOMERS', label: 'Clientes', icon: '👥' },
     { id: 'EXPENSES', label: 'Gastos', icon: '🚛' },
-    { id: 'REPORTS', label: 'Reportes', icon: '📊' }
+    { id: 'REPORTS', label: 'Reportes', icon: '📊' },
+    { id: 'BACKUP', label: 'Respaldo', icon: '💾' }
   ];
 
   return (
@@ -790,6 +852,55 @@ const App = () => {
                    </div>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* RESPALDO */}
+        {view === 'BACKUP' && (
+          <div className="max-w-4xl mx-auto space-y-8 md:space-y-10 animate-in fade-in duration-300">
+            <h2 className="text-3xl md:text-4xl font-black text-slate-800 tracking-tight">Respaldo de Seguridad</h2>
+            <p className="text-slate-500 font-medium">Protege tus datos exportando una copia de seguridad o restaura una anterior.</p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-sm flex flex-col items-center text-center space-y-6">
+                <div className="w-20 h-20 bg-emerald-50 rounded-3xl flex items-center justify-center text-4xl">📤</div>
+                <div>
+                  <h3 className="text-xl font-black text-slate-800 mb-2">Exportar Datos</h3>
+                  <p className="text-sm text-slate-400 font-medium">Descarga un archivo con todas tus ventas, clientes y rubros.</p>
+                </div>
+                <button 
+                  onClick={handleExportBackup}
+                  className="w-full py-4 bg-emerald-500 text-white font-black rounded-2xl shadow-lg shadow-emerald-500/20 uppercase text-sm tracking-widest hover:bg-emerald-600 transition-colors"
+                >
+                  Exportar Respaldo
+                </button>
+              </div>
+
+              <div className="bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-sm flex flex-col items-center text-center space-y-6">
+                <div className="w-20 h-20 bg-blue-50 rounded-3xl flex items-center justify-center text-4xl">📥</div>
+                <div>
+                  <h3 className="text-xl font-black text-slate-800 mb-2">Importar Datos</h3>
+                  <p className="text-sm text-slate-400 font-medium">Selecciona un archivo de respaldo para restaurar tu información.</p>
+                </div>
+                <label className="w-full py-4 bg-blue-500 text-white font-black rounded-2xl shadow-lg shadow-blue-500/20 uppercase text-sm tracking-widest hover:bg-blue-600 transition-colors cursor-pointer text-center">
+                  Importar Respaldo
+                  <input 
+                    type="file" 
+                    accept=".json" 
+                    className="hidden" 
+                    onChange={handleImportBackup}
+                  />
+                </label>
+              </div>
+            </div>
+
+            <div className="bg-orange-50 p-6 rounded-[2rem] border border-orange-100 flex items-start gap-4">
+              <span className="text-2xl">💡</span>
+              <p className="text-xs text-orange-700 font-bold leading-relaxed">
+                Se recomienda realizar un respaldo semanalmente para evitar la pérdida de datos por limpieza automática de Safari en iPhone. 
+                El sistema también realiza un auto-respaldo interno cada vez que registras un movimiento.
+              </p>
             </div>
           </div>
         )}
